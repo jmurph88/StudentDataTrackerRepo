@@ -15,20 +15,19 @@ namespace StudentTracker
         //Show Menu Options and converts user input to char to be read by main()
         public static char DisplayMenu()
         {
-            char choice;
+            string choice;
 
             Console.WriteLine("Student Data Tracker");
             Console.WriteLine("Choose an option:");
             Console.WriteLine("[F]ind");
             Console.WriteLine("[A]dd");
+            Console.WriteLine("[D]elete");
             Console.WriteLine("[P]rint ");
             Console.WriteLine("[Q]uit");
 
-            choice = Console.ReadKey().KeyChar;
-            return choice;
+            choice = Console.ReadKey().KeyChar.ToString().ToUpper();
+            Console.WriteLine("»»»» " + choice + " ««««");
+            return choice[0];
         }
-
-
-
     }
 }

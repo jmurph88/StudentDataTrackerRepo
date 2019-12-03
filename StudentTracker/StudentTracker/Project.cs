@@ -12,33 +12,28 @@ namespace StudentTracker
 {
     class Program
     {
-        //Creating StudentData list to be accessed by all functions in class
+        // Creating StudentData list to be accessed by all functions in class
         public static List<StudentData> StudentDataList = new List<StudentData>();
-      
-       //Loading the Data from the File(Input)
-        public List<StudentData> LoadData()
+
+        // Loading the Data from the File(Input)
+        static void LoadData(string pFilePath)
         {
             StudentData s;
             string inline;
-            string[] values = new string[7];
-            string filePath = @"C:\\Users\\jmrig\\source\\repos\\StudentTracker\\StudentTracker\\StudentDataCSVFile.csv";
-
+            string[] values;
 
             try
             {
-                if (File.Exists(filePath))
+                if (File.Exists(pFilePath))
                 {
-                    using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                    using (StreamReader sr = new StreamReader(filePath))
+                    using (StreamReader sr = new StreamReader(pFilePath))
                     {
                         while ((inline = sr.ReadLine()) != null)
                         {
-                        
                             values = inline.Split(',');
-                            s = new StudentData(values[0], values[1], values[2], values[3], 
-                                values[4], values[5], values[6]); //index was outside bounds of array?
+                            //s = StudentData.FromData(inline);
+                            s = new StudentData(values[0], values[1], values[2], values[3], values[4], values[5], values[6]); //index was outside bounds of array?
                             StudentDataList.Add(s);
-
                         }
                     }
 
@@ -49,35 +44,35 @@ namespace StudentTracker
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(e.Message);
             }
-
-            return StudentDataList;
         }
 
         static void Main(string[] args)
         {
             char choice;
-            var p = new Program();
-            string filePath = @"C:\\Users\\jmrig\\source\\repos\\StudentTracker\\StudentTracker\\StudentDataCSVFile.csv";
-
-
+            string name;
             bool isDone = false;
 
-//try
-            //{
+            // The following declaration will build a string of your current directory with the CSV filename
+            string filePath = Path.Combine(Environment.CurrentDirectory, "StudentDataCSVFile.csv");
+
+            try
+            {
+                // Loads data from csv file and readies if for processing
+                LoadData(filePath);
+
+                // While user does not QUIT, continually show the menu of options available
                 while (!isDone)
                 {
-                //Loads data from csv file
-                p.LoadData();
-
-                    //Displays Menu for user
+                    // Displays Menu for user
                     choice = StudentDataFunc.DisplayMenu();
 
-                    if (choice == 'F')
+                    if (choice == 'F') // Option: FIND
                     {
-                        //Search List of Students
+                        // Search List of Students
                         Console.WriteLine(" ");
                         Console.WriteLine("Please Enter \r\n [F] to search by student's first name, \r\n [L] to search by student's last or \r\n [T] to search teacher name:");
-                        string name = Console.ReadLine().ToUpper();
+                        name = Console.ReadLine().ToUpper();
+
                         if (name == "F")
                         {
                             searchByFirstName();
@@ -101,154 +96,138 @@ namespace StudentTracker
                             Console.WriteLine("No matching records found.");
                         }
                         Console.WriteLine(" ");
-                        StudentDataFunc.DisplayMenu();
-
                     }
-
-                    else if (choice == 'A')
+                    else if (choice == 'A') // Option: ADD
                     {
-                        //Add Students to File
-                        using (FileStream fs = new FileStream(@filePath, FileMode.Append))
-                        using (StreamWriter sw = new StreamWriter(fs))
-                        {
-                            Console.WriteLine(" ");
-                            Console.WriteLine("Enter first name of student to be added:");
-                            string FNameInput = Console.ReadLine();
+                        // Get data from the user to add to the student list
+                        Console.WriteLine(" ");
+                        Console.WriteLine("Enter first name of student to be added:");
+                        string FNameInput = Console.ReadLine();
 
-                            Console.WriteLine("Enter last name of student to be added:");
-                            string LNameInput = Console.ReadLine();
+                        Console.WriteLine("Enter last name of student to be added:");
+                        string LNameInput = Console.ReadLine();
 
-                            Console.WriteLine("Enter the last name of the student's teacher:");
-                            string TeacherNameInput = Console.ReadLine();
+                        Console.WriteLine("Enter the last name of the student's teacher:");
+                        string TeacherNameInput = Console.ReadLine();
 
-                            Console.WriteLine("Enter Quiz 1 score:");
-                            int Quiz1Input = Convert.ToInt32(Console.ReadLine());
+                        Console.WriteLine("Enter Quiz 1 score:");
+                        int Quiz1Input = Convert.ToInt32(Console.ReadLine());
 
-                            Console.WriteLine("Enter Quiz 2 score:");
-                            int Quiz2Input = Convert.ToInt32(Console.ReadLine());
+                        Console.WriteLine("Enter Quiz 2 score:");
+                        int Quiz2Input = Convert.ToInt32(Console.ReadLine());
 
-                            Console.WriteLine("Enter Quiz 3 score:");
-                            int Quiz3Input = Convert.ToInt32(Console.ReadLine());
+                        Console.WriteLine("Enter Quiz 3 score:");
+                        int Quiz3Input = Convert.ToInt32(Console.ReadLine());
 
-                            Console.WriteLine("Enter Quiz 4 score:");
-                            int Quiz4Input = Convert.ToInt32(Console.ReadLine());
+                        Console.WriteLine("Enter Quiz 4 score:");
+                        int Quiz4Input = Convert.ToInt32(Console.ReadLine());
 
-                            string textAdd = (FNameInput + "," + LNameInput + "," + TeacherNameInput + "," + Quiz1Input + "," + Quiz2Input + "," + Quiz3Input + "," + Quiz4Input);
-                            sw.WriteLine(filePath, textAdd + Environment.NewLine);
-                            Console.ReadLine();
+                        StudentDataList.Add(new StudentData(FNameInput, LNameInput, TeacherNameInput, Quiz1Input.ToString(),
+                                        Quiz2Input.ToString(), Quiz3Input.ToString(), Quiz4Input.ToString()));
 
-                            StudentDataList.Add(new StudentData(FNameInput, LNameInput, TeacherNameInput, Quiz1Input.ToString(),
-                                            Quiz2Input.ToString(), Quiz3Input.ToString(), Quiz4Input.ToString()));
-                            //SaveData(ToData());
-                        }
-
-
-
+                        Console.WriteLine(" ");
                         Console.WriteLine("Your data has been added.");
                         Console.WriteLine(" ");
-                        StudentDataFunc.DisplayMenu();
                     }
 
-                    else if (choice == 'D')
+                    else if (choice == 'D') // Option: DELETE
                     {
                         DeleteStudent();
                         Console.WriteLine(" ");
-                        StudentDataFunc.DisplayMenu();
                     }
 
-                    else if (choice == 'P')
+                    else if (choice == 'P') // Option: PRINT
                     {
+                        // Print the student data to the screen
+                        Console.WriteLine();
+                        Console.WriteLine();
+                        Console.WriteLine("Student     \tTeacher\tQz 1\tQz 2\tQz 3\tQz 4");
+                        Console.WriteLine("--------    \t-------\t----\t----\t----\t----");
                         foreach (StudentData item in StudentDataList)
                         {
-                            FileRead(item);
+                            Console.WriteLine(item.LName + ", " +
+                                item.FName + "\t" +
+                                item.TeacherName + "\t" +
+                                item.Quiz1 + "\t" +
+                                item.Quiz2 + "\t" +
+                                item.Quiz3 + "\t" +
+                                item.Quiz4);
                         }
-                        StudentDataFunc.DisplayMenu();
-
+                        Console.WriteLine();
                     }
 
-                    else if (choice == 'Q')
+                    else if (choice == 'Q') // Option: QUIT
                     {
                         isDone = true;
                     }
                 }
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw new Exception("Your input is invalid.", innerException: ex);
-            //}
-        }
 
-
-        //Decalring vairable for user input from menu
-        private static char UserInput()
-        {
-            return Console.ReadKey().KeyChar;
-        }
-
-
-        //FileRead(): This method will pull the CSV file, reads it and returns all of the content in the file.
-        public static List<StudentData> FileRead(StudentData item)
-        {
-            List<StudentData> StudentDataList = new List<StudentData>();
-
-            using (var reader = new StreamReader(@"C:\\Users\\jmrig\\source\\repos\\StudentTracker\\StudentTracker\\StudentDataCSVFile.csv"))
-            {
-                string dataRead;
-
-                while ((dataRead = reader.ReadLine()) != null)
-                {
-                    var Line = dataRead.Split(',');
-
-                    //Setting value of items in list
-                    var listItem = new StudentData();
-                    listItem.FName = Line[0];
-                    listItem.LName = Line[1];
-                    listItem.TeacherName = Line[2];
-                    listItem.Quiz1 = Convert.ToInt32(Line[3]); //input string not in correct format
-                    listItem.Quiz2 = Int32.Parse(Line[4].ToString());
-                    listItem.Quiz3 = Int32.Parse(Line[5]);
-                    listItem.Quiz4 = Int32.Parse(Line[6]);
-
-                    StudentDataList.Add(listItem);
-                }
-
-                reader.Close();
+                // Save the student data and then set the done flag to exit the while loop
+                SaveData(filePath);
             }
-            return StudentDataList;
-        }
-
-
-        //Print List (What does this function do vs. the one above?)
-        public static void FileWrite(List<StudentData> StudentDataList)
-        {
-
-            using (StreamWriter sr = new StreamWriter(@"C:\\Users\\jmrig\\source\\repos\\StudentTracker\\StudentTracker\\StudentDataCSVFile.csv"))
+            catch (Exception ex)
             {
-                foreach (StudentData s in StudentDataList)
-                {
-                    sr.WriteLine(s.FName + "," + s.LName + "," + s.TeacherName + "," + s.Quiz1.ToString() + "," + s.Quiz2.ToString() + "," +
-                                 s.Quiz3.ToString() + "," + s.Quiz4.ToString());
-                }
-
-                sr.Close();
+                throw new Exception("Your input is invalid.", innerException: ex);
             }
         }
-        //Save FName, LName, School, Quiz1, Quiz2, Quiz3, Quiz4
-        public static void SaveData(StudentData item)
+
+        //////FileRead(): This method will pull the CSV file, reads it and returns all of the content in the file.
+        ////public static List<StudentData> FileRead(StudentData item)
+        ////{
+        ////    List<StudentData> StudentDataList = new List<StudentData>();
+        ////    string[] Line;
+
+        ////    using (var reader = new StreamReader(@"C:\\Users\\jmrig\\source\\repos\\StudentTracker\\StudentTracker\\StudentDataCSVFile.csv"))
+        ////    {
+        ////        string dataRead;
+
+        ////        while ((dataRead = reader.ReadLine()) != null)
+        ////        {
+        ////            Line = dataRead.Split(',');
+
+        ////            // Setting value of items in list
+        ////            var listItem = new StudentData();
+        ////            listItem.FName = Line[0];
+        ////            listItem.LName = Line[1];
+        ////            listItem.TeacherName = Line[2];
+        ////            listItem.Quiz1 = Convert.ToInt32(Line[3]); //input string not in correct format
+        ////            listItem.Quiz2 = Int32.Parse(Line[4].ToString());
+        ////            listItem.Quiz3 = Int32.Parse(Line[5]);
+        ////            listItem.Quiz4 = Int32.Parse(Line[6]);
+
+        ////            StudentDataList.Add(listItem);
+        ////        }
+        ////    }
+        ////    return StudentDataList;
+        ////}
+
+
+        //Print List(What does this function do vs.the one above?)
+        //public static void FileWrite(List<StudentData> StudentDataList)
+        //{
+        //    using (StreamWriter sr = new StreamWriter(@"C:\\Users\\jmrig\\source\\repos\\StudentTracker\\StudentTracker\\StudentDataCSVFile.csv"))
+        //    {
+        //        foreach (StudentData s in StudentDataList)
+        //        {
+        //            sr.WriteLine(s.FName + "," + s.LName + "," + s.TeacherName + "," + s.Quiz1.ToString() + "," + s.Quiz2.ToString() + "," +
+        //                         s.Quiz3.ToString() + "," + s.Quiz4.ToString());
+        //        }
+
+        //        sr.Close();
+        //    }
+        //}
+
+        // Save the student data to the file
+        public static void SaveData(string pFilePath)
         {
-            using (StreamWriter sw = new StreamWriter(@"C:\\Users\\jmrig\\source\\repos\\StudentTracker\\StudentTracker\\StudentDataCSVFile.cs"))
+            using (StreamWriter sw = new StreamWriter(pFilePath, false))
             {
                 foreach (StudentData s in StudentDataList)
                 {
                     sw.WriteLine(s.ToData());
                 }
-                sw.Close();
             }
         }
-
-
-
-
 
         //Searches student data List by Student First Name
         public static void searchByFirstName()
@@ -306,8 +285,9 @@ namespace StudentTracker
                 StudentDataFunc.DisplayMenu();
             }
         }
-         
+
     }
 }
+
 
 
